@@ -74,9 +74,7 @@ body {
     bottom:0;
     width: 15px;
     height: 15px;
-    margin: 5px;
     border-right: 2px solid #FFF;
     border-bottom: 2px solid #FFF;
     cursor:nw-resize;
-
 }

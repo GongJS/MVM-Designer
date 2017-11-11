@@ -1,5 +1,5 @@
 $(function() {
-
+//基本数据
     var data = {
         top: 100,
         left: 100,
@@ -16,21 +16,27 @@ $(function() {
     };
 
 
+
+//控制函数
     var octopus = {
         addPizza: function() {
             var thisID = ++data.lastID;
-
+             
+            var randomColor = function () {
+                return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).substr(-6);
+            };
             data.pizzas.push({
                 id: thisID,
-                visible: true,
                 top: data.top,
                 left: data.left,
                 width: data.width,
                 height: data.height,
+                visible: true,
                 isDrag: false,
                 RisDrag: false,
                 BisDrag: false,
                 RBisDrag: false,
+                ranColor: randomColor(),
                 resizeRTop: data.resizeRTop,
                 resizeRLeft: data.resizeRLeft,
                 resizeBTop: data.resizeBTop,
@@ -49,10 +55,9 @@ $(function() {
         //方块鼠标点击函数
         mousedownPizza: function(e, pizza) {
             var clickedPizza = data.pizzas[pizza.id - 1];
-            clickedPizza.isDrag = true;
+            setTimeout(clickedPizza.isDrag = true,10);//鼠标去抖
             mouseInitX = e.pageX - clickedPizza.left;
             mouseInitY = e.pageY - clickedPizza.top;
-            console.log("nihao");
         },
         //右边框鼠标点击函数
         mousedownresizeR: function(e, resizeR) {
@@ -66,12 +71,12 @@ $(function() {
             clickedresize.BisDrag = true;
             m_start_y = e.pageY - clickedresize.resizeBTop;
         },
+        //右下角鼠标点击函数
         mousedownresizeRB: function(e, resizeRB){
              var clickedpizza = data.pizzas[resizeRB.id - 1];
             clickedpizza.RBisDrag = true;
             RBInitX = e.pageX - clickedpizza.resizeRBLeft;
             RBInitY = e.pageY - clickedpizza.resizeRBTop;
-
         },
         //边框拖动函数
         mousemoveresize: function(e, resizeR) {
@@ -98,7 +103,8 @@ $(function() {
                 view.render();
             }
             else if (clickedresize.BisDrag === true) {
-                clickedresize.resizeBTop = Math.max(e.pageY - m_start_y, clickedresize.top + 50);
+                var BX = e.pageY - m_start_y;
+                clickedresize.resizeBTop = Math.max(BX, clickedresize.top + 50);
                 clickedresize.height = Math.max(clickedresize.resizeBTop - clickedresize.top + 10, 50);
                 clickedresize.resizeRBTop = clickedresize.top + clickedresize.height - 20;
                 view.render();
@@ -124,16 +130,13 @@ $(function() {
                 view.render();
             }
         },
-        //鼠标弹起函数
+        //鼠标释放函数
         mouseup: function(e, pizza) {
             var clickedPizza = data.pizzas[pizza.id - 1];
             clickedPizza.isDrag = false;
             clickedPizza.RisDrag = false;
             clickedPizza.BisDrag = false;
             clickedPizza.RBisDrag = false;
-
-
-
         },
 
         getVisiblePizzas: function() {
@@ -146,9 +149,11 @@ $(function() {
         init: function() {
             view.init();
         }
-    };
+      };
 
 
+
+//界面渲染
     var view = {
             //界面初始化函数
             init: function() {
@@ -157,11 +162,11 @@ $(function() {
                     octopus.addPizza();
                 });
 
-                // grab elements and html for using in the render function
+                // 界面渲染
                 this.$pizzaList = $('.pizza-list');
                 this.pizzaTemplate = $('script[data-template="pizza"]').html();
 
-                // Delegated event to listen for removal clicks
+                // 删除方块绑定事件
                 this.$pizzaList.on('mousedown', '.remove-pizza', function(e) {
                     var pizza = $(this).parents('.pizza').data();
                     octopus.removePizza(pizza);
@@ -180,6 +185,7 @@ $(function() {
                     });
                     return false;
                 });
+
                 //右边框绑定事件
                 this.$pizzaList.on({
                     mousedown: function(e) {
@@ -208,9 +214,10 @@ $(function() {
                             octopus.mouseup(e, pizza);
                         })
                     }
-                }, '.resizeB'); //移动右边框
+                }, '.resizeB'); 
          
-            this.$pizzaList.on({
+                //右下角方块绑定事件
+                this.$pizzaList.on({
                 mousedown: function(e) {
                     e.stopPropagation();
                     var pizza = $(this).parent('.pizza').data();
@@ -222,22 +229,23 @@ $(function() {
                         octopus.mouseup(e, pizza);
                     })
                 }
-            }, '.resizeRB'); //移动右下小方块
+            }, '.resizeRB'); 
 
             this.render();
         },
+
         render: function() {
-            // Cache vars for use in forEach() callback (performance)
+            // 页面缓存
             var $pizzaList = this.$pizzaList,
                 pizzaTemplate = this.pizzaTemplate;
             $(".pizza").css("cursor", "pointer")
-            // Clear and render
+            // 清除页面
             $pizzaList.html('');
             octopus.getVisiblePizzas().forEach(function(pizza) {
-                // Replace template markers with data
+                // 更新页面
                 var thisTemplate = pizzaTemplate.replace(/{{id}}/g, pizza.id);
                 $pizzaList.append(thisTemplate);
-                $("div[data-id=" + pizza.id + "]").offset({ top: pizza.top, left: pizza.left }).css({ 'width': pizza.width + 'px', 'height': pizza.height + 'px' });
+                $("div[data-id=" + pizza.id + "]").offset({ top: pizza.top, left: pizza.left }).css({ 'width': pizza.width + 'px', 'height': pizza.height + 'px','background': pizza.ranColor});
                 $("div[data-id=" + pizza.id + "] > .resizeR").offset({ top: pizza.resizeRTop, left: pizza.resizeRLeft });
                 $("div[data-id=" + pizza.id + "] > .resizeB").offset({ top: pizza.resizeBTop, left: pizza.resizeBLeft });
             });
