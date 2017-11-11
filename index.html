@@ -8,22 +8,23 @@
     </head>
     <body>
 
-    <div class="controls">
+   <div class="controls">
         <button class="add-pizza">Add Pizza</button>
     </div>
 
-    <ul class="pizza-list"></ul>
+    <div class="pizza-list"></div>
 
     <script type="text/template" data-template="pizza">
-        <li class="pizza" data-id="{{id}}">
-            {{id}}
-            <div class="pizza-controls">
-                <a href="#" class="remove-pizza">X</a>
-            </div>
-        </li>
-    </script>
-
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <div class="pizza" data-id="{{id}}">
+        <a href="#" class="remove-pizza">×</a>
+        <div class="resizeR"></div>
+        <div class="resizeB"></div>
+        <div class="resizeRB"></div>
+    </div>
+</script>
+ 
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/lodash.custom.min.js"></script>
     <script src="js/app.js"></script>
     </body>
 </html>
